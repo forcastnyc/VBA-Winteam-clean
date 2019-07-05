@@ -1,0 +1,82 @@
+Sub Test6()
+'
+' Profit Sharing Macro
+' Creates and moves columns, adds keyword table, runs formula in reference to the table.
+' Need to update keyword dates for 2020. Make sure to include Q3 and Q4 dates of 2019 incase of rebills.
+
+' The lines below remove duplicates based on Invoice number. The problem that arises is that all invoice description, except for the for...
+' ... the first line is deleted. Thus, analysis on the description thorugh keywords is trickier without most of description. For example, if Revised contract, the...
+' ... associated date will be deleted, and thus it is harder to be 100% certain that the invoice line is for Contract or One Time
+     Range(Selection, Selection.End(xlToRight)).Select
+    Range(Selection, Selection.End(xlDown)).Select
+    Range(Selection, Selection.End(xlDown)).Select
+    ActiveSheet.Range("$A$1:$BH$10000").RemoveDuplicates Columns:=15, Header:= _
+        xlYes
+' added everything before this note to try and remove duplicates first. Also, above, I changed active sheet range from ~230 to 10000.
+
+    Columns("S:S").Select
+    Selection.Cut
+    Columns("A:A").Select
+    Selection.Insert Shift:=xlToRight
+    Columns("X:X").Select
+    Selection.Copy
+    Application.CutCopyMode = False
+    Selection.Cut
+    Columns("B:B").Select
+    Selection.Insert Shift:=xlToRight
+    Columns("C:C").Select
+    Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+    Range("C1").Select
+    ActiveCell.FormulaR1C1 = "Recurring or One Time"
+    
+    ' The below lines of code are the Key Words. Add or remove keywords as is necessary.
+    ' Revised generally refers to contract rebills, but it could be that there is a rebill for one time. This code does not identify the difference.
+    Range("BL1").Select
+    ActiveCell.FormulaR1C1 = "Key Words"
+    Range("BL2").Select
+    ActiveCell.FormulaR1C1 = "1/1/2019"
+    Range("BL3").Select
+    ActiveCell.FormulaR1C1 = "2/1/2019"
+    Range("BL4").Select
+    ActiveCell.FormulaR1C1 = "3/1/2019"
+    Range("BL5").Select
+    ActiveCell.FormulaR1C1 = "4/1/2019"
+    Range("BL6").Select
+    ActiveCell.FormulaR1C1 = "5/1/2019"
+    Range("BL7").Select
+    ActiveCell.FormulaR1C1 = "6/1/2019"
+    Range("BL8").Select
+    ActiveCell.FormulaR1C1 = "7/1/2019"
+    Range("BL9").Select
+    ActiveCell.FormulaR1C1 = "8/1/2019"
+    Range("BL10").Select
+    ActiveCell.FormulaR1C1 = "9/1/2019"
+    Range("BL11").Select
+    ActiveCell.FormulaR1C1 = "10/1/2019"
+    Range("BL12").Select
+    ActiveCell.FormulaR1C1 = "11/1/2019"
+    Range("BL13").Select
+    ActiveCell.FormulaR1C1 = "12/1/2019"
+    Range("BL14").Select
+    ActiveCell.FormulaR1C1 = "Revised"
+    Range("BL15").Select
+    Application.CutCopyMode = False
+    ActiveSheet.ListObjects.Add(xlSrcRange, Range("$BL$1:$BL$14"), , xlYes).Name = _
+        "Table1"
+    Range("Table1[[#All],[Key Words]]").Select
+
+    Range("C2").Select
+    ActiveCell.FormulaR1C1 = _
+        "=IF(NOT(ISBLANK(RC[15])),IF(SUMPRODUCT(--ISNUMBER(SEARCH(""*""&Table1[[#All],[Key Words]]&""*"",RC[26])))>0,""Recurring"",""One Time""),"""")"
+    Range("C2").Select
+    'Removed below code and inserted an autofill that populates til row 10,000. This makes the code run 10x faster and Excel is less glitchy.
+    'Selection.Copy
+   ' Range(Selection, Selection.End(xlDown)).Select
+   ' ActiveSheet.Paste
+   ' Range("C2").Select
+   Selection.AutoFill Destination:=Range("C2:C10000")
+    Application.CutCopyMode = False
+    'Use below to calculate the whole sheet. This solves a problem where the formula was only running as "Recurring" due to the autofill not computing correctly
+Application.Calculation = xlCalculationAutomatic
+
+End Sub
